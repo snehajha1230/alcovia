@@ -232,15 +232,22 @@ docker build -t alcovia-backend .
 docker run -p 3001:3001 alcovia-backend
 ```
 
-### Client (Expo web)
+### Client (Vercel — Expo web)
 
-Point the client at your deployed API:
+In Vercel project settings:
 
-```bash
-EXPO_PUBLIC_API_URL=https://your-api.example.com npm run web -w @alcovia/client
-```
+| Setting | Value |
+|---------|--------|
+| **Root Directory** | `alcovia-client` |
+| **Build Command** | `npm run build` (or leave default — uses `vercel.json`) |
+| **Output Directory** | `dist` |
+| **Install Command** | `cd .. && npm install` (monorepo lockfile at repo root) |
 
-Copy `.env.example` to `.env` and adjust values as needed.
+Add env var `EXPO_PUBLIC_API_URL` = your deployed backend URL (e.g. `https://your-api.railway.app`).
+
+Push to GitHub and redeploy. Do **not** use `expo start --web` for production — Vercel needs the static export from `npm run build`.
+
+Copy `.env.example` to `.env` for local development.
 
 ## Left out / next steps
 
