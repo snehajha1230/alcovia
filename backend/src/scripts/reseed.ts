@@ -3,7 +3,7 @@ import path from 'path';
 import { createInitialSnapshot } from '../seed';
 import { STUDENT_ID } from '../types';
 
-const DATA_DIR = path.join(__dirname, '..', '..', 'data');
+const DATA_DIR = process.env.DATA_DIR ?? path.join(__dirname, '..', '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'db.json');
 const DEVICE_STATE_DIR = path.join(DATA_DIR, 'device-states');
 

@@ -40,6 +40,16 @@ npm run dev:backend   # http://localhost:3001
 npm run dev:client    # Expo web
 ```
 
+Open `http://localhost:3001` — you should see API info JSON (not “Cannot GET /”).
+Health check: `http://localhost:3001/health`
+
+**Production (local):**
+
+```bash
+npm run build
+npm run start -w @alcovia/backend
+```
+
 Optional backend env:
 
 ```bash
@@ -205,6 +215,32 @@ alcovia/                     # npm workspaces monorepo
 ├── DECISIONS.md
 └── README.md
 ```
+
+## Deployment
+
+### Backend (Railway, Render, Fly.io, etc.)
+
+1. Set build command: `npm install && npm run build -w @alcovia/backend`
+2. Set start command: `npm run start -w @alcovia/backend`
+3. Env vars: `PORT` (set by host), optional `N8N_WEBHOOK_URL`, optional `DATA_DIR` for persistent volume
+4. Health check path: `/health`
+
+Or use the included `Dockerfile`:
+
+```bash
+docker build -t alcovia-backend .
+docker run -p 3001:3001 alcovia-backend
+```
+
+### Client (Expo web)
+
+Point the client at your deployed API:
+
+```bash
+EXPO_PUBLIC_API_URL=https://your-api.example.com npm run web -w @alcovia/client
+```
+
+Copy `.env.example` to `.env` and adjust values as needed.
 
 ## Left out / next steps
 

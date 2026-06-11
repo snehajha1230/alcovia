@@ -12,11 +12,13 @@
     "dev:backend": "npm run dev -w @alcovia/backend",
     "dev:client": "npm run web -w @alcovia/client",
     "build": "npm run build -w @alcovia/backend",
+    "start": "npm run build -w @alcovia/backend && npm run start -w @alcovia/backend",
     "reseed": "npm run reseed -w @alcovia/backend",
     "apply-device-seeds": "npm run apply-device-seeds -w @alcovia/client"
   },
   "devDependencies": {
-    "concurrently": "^9.2.1"
+    "concurrently": "^9.2.1",
+    "tsx": "^4.22.4"
   },
   "engines": {
     "node": ">=18"

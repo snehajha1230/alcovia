@@ -3,7 +3,7 @@ import path from 'path';
 import type { DatabaseSnapshot } from './types';
 import { createInitialSnapshot } from './seed';
 
-const DATA_DIR = path.join(__dirname, '..', 'data');
+const DATA_DIR = process.env.DATA_DIR ?? path.join(__dirname, '..', 'data');
 const DB_PATH = path.join(DATA_DIR, 'db.json');
 
 let snapshot: DatabaseSnapshot | null = null;

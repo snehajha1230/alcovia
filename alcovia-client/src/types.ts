@@ -1,5 +1,5 @@
 export const STUDENT_ID = 'student-1';
-export const API_BASE_URL = 'http://localhost:3001';
+export const API_BASE_URL = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:3001';
 export const COINS_PER_SESSION = 50;
 export const GRACE_PERIOD_MS = 5000;
 export const MIN_FOCUS_MINUTES = 25;
