@@ -1,0 +1,24 @@
+{
+  "name": "alcovia",
+  "version": "1.0.0",
+  "private": true,
+  "description": "Alcovia monorepo — offline-first focus & syllabus sync",
+  "workspaces": [
+    "alcovia-client",
+    "backend"
+  ],
+  "scripts": {
+    "dev": "concurrently -n backend,client -c blue,green \"npm run dev -w @alcovia/backend\" \"npm run web -w @alcovia/client\"",
+    "dev:backend": "npm run dev -w @alcovia/backend",
+    "dev:client": "npm run web -w @alcovia/client",
+    "build": "npm run build -w @alcovia/backend",
+    "reseed": "npm run reseed -w @alcovia/backend",
+    "apply-device-seeds": "npm run apply-device-seeds -w @alcovia/client"
+  },
+  "devDependencies": {
+    "concurrently": "^9.2.1"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

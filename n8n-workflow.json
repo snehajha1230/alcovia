@@ -1,0 +1,111 @@
+{
+  "name": "Alcovia Focus Success Notification",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "focus-success",
+        "responseMode": "responseNode",
+        "options": {}
+      },
+      "id": "webhook-focus-success",
+      "name": "Focus Success Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [260, 300],
+      "webhookId": "alcovia-focus-success"
+    },
+    {
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.sentSessionIds) {\n  staticData.sentSessionIds = {};\n}\n\nconst body = $json.body ?? $json;\nconst sessionId = body.sessionId ?? body.eventId;\n\nif (!sessionId) {\n  return [{ json: { skipped: true, reason: 'missing_session_id' } }];\n}\n\nif (staticData.sentSessionIds[sessionId]) {\n  return [{ json: { skipped: true, reason: 'duplicate_session_id', sessionId } }];\n}\n\nstaticData.sentSessionIds[sessionId] = new Date().toISOString();\n\nreturn [{\n  json: {\n    skipped: false,\n    sessionId,\n    studentId: body.studentId,\n    streakDays: body.streakDays,\n    coinsAwarded: body.coinsAwarded,\n    message: body.message ?? `Streak now ${body.streakDays} days, +${body.coinsAwarded} coins.`\n  }\n}];"
+      },
+      "id": "dedupe-session",
+      "name": "Dedupe By Session ID",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [520, 300]
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.skipped}}",
+              "operation": "isNotTrue"
+            }
+          ]
+        }
+      },
+      "id": "if-not-duplicate",
+      "name": "If Not Duplicate",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [760, 300]
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "http://host.docker.internal:3001/dev/mock-whatsapp",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"sessionId\": \"{{$json.sessionId}}\",\n  \"message\": \"{{$json.message}}\",\n  \"streakDays\": {{$json.streakDays}},\n  \"coinsAwarded\": {{$json.coinsAwarded}}\n}",
+        "options": {}
+      },
+      "id": "mock-whatsapp",
+      "name": "Mock WhatsApp Sink",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [1020, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"sent\": {{$json.skipped ? false : true}},\n  \"sessionId\": \"{{$json.sessionId || 'unknown'}}\"\n}",
+        "options": {}
+      },
+      "id": "respond-sent",
+      "name": "Respond Sent",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1260, 220]
+    },
+    {
+      "parameters": {
+        "respondWith": "json",
+        "responseBody": "={\n  \"ok\": true,\n  \"sent\": false,\n  \"reason\": \"{{$json.reason}}\",\n  \"sessionId\": \"{{$json.sessionId || 'unknown'}}\"\n}",
+        "options": {}
+      },
+      "id": "respond-skipped",
+      "name": "Respond Skipped",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "typeVersion": 1.1,
+      "position": [1020, 420]
+    }
+  ],
+  "connections": {
+    "Focus Success Webhook": {
+      "main": [[{ "node": "Dedupe By Session ID", "type": "main", "index": 0 }]]
+    },
+    "Dedupe By Session ID": {
+      "main": [[{ "node": "If Not Duplicate", "type": "main", "index": 0 }]]
+    },
+    "If Not Duplicate": {
+      "main": [
+        [{ "node": "Mock WhatsApp Sink", "type": "main", "index": 0 }],
+        [{ "node": "Respond Skipped", "type": "main", "index": 0 }]
+      ]
+    },
+    "Mock WhatsApp Sink": {
+      "main": [[{ "node": "Respond Sent", "type": "main", "index": 0 }]]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "alcovia-focus-v1",
+  "meta": {
+    "templateCredsSetupCompleted": true
+  },
+  "tags": []
+}
